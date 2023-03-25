@@ -16,6 +16,51 @@ class InfoEnum(enum.IntEnum):
     DEVICESERIAL = 11
     HARDVERSION = 12
 
+class PrinterModel(enum.IntEnum):
+    A8 = 1280
+    B16 = 1792
+    B203 = 2816
+    B21_C2B = 771
+    B21_C2B_ZX = 775
+    B21_C2W = 772
+    B21_C3W = 774
+    B21_L2B = 769
+    B21_L2W = 770
+    B21_OLD = 768
+    B32 = 2049
+    B32_R = 2050
+    B3S = 256
+    B3S_ZX = 260
+    D101 = 2560
+    D110 = 2304
+    D11 = 512
+    D61 = 1536
+    DT = 99
+    DT_B11 = 51457
+    DT_B50 = 51713
+    DT_B50W = 51714
+    DT_JCM_90 = 51461
+    DT_S1 = 51458
+    DT_S2 = 51459
+    DT_S3 = 51460
+    DT_T6 = 51715
+    DT_T7 = 51716
+    DT_T8 = 51717
+    FUST = 513
+    P1S = 1025
+    P1 = 1024
+    S6_1 = 258
+    S6 = 257
+    TSC = 255
+    WK_GT100 = 55809
+    XBY_T2 = 53249
+    Z401 = 2051
+    Z401_R = 2052
+    ZP = 52993
+    ZT_CL4NX = 57345
+    ZT_CL6NX = 57601
+
+
 _packet_to_int = lambda x: int.from_bytes(x.data, 'big')
 
 # TODO REMOVE MAGIC NUMBER
