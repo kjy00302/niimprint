@@ -11,5 +11,8 @@ HEADERS = {
 
 
 def get_cloud_template_by_one_code(one_code):
-    resp = requests.post(GET_CLOUD_TEMPLATE_BY_ONE_CODE_URL, headers=HEADERS)
+    data = {
+        'oneCode':  one_code,
+    }
+    resp = requests.post(GET_CLOUD_TEMPLATE_BY_ONE_CODE_URL, json=data, headers=HEADERS)
     return resp.json()
