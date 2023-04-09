@@ -16,6 +16,21 @@ class InfoEnum(enum.IntEnum):
     DEVICESERIAL = 11
     HARDVERSION = 12
 
+class RequestCodeEnum(enum.IntEnum):
+    GET_INFO = 64
+    GET_RFID = 26
+    HEARTBEAT = 220
+    SET_LABEL_TYPE = 35
+    SET_LABEL_DENSITY = 33
+    START_PRINT = 1
+    END_PRINT = 243
+    START_PAGE_PRINT = 3
+    END_PAGE_PRINT = 227
+    ALLOW_PRINT_CLEAR = 32
+    SET_DIMENSION = 19
+    SET_QUANTITY = 21
+    GET_PRINT_STATUS = 163
+
 _packet_to_int = lambda x: int.from_bytes(x.data, 'big')
 
 # TODO REMOVE MAGIC NUMBER
@@ -58,7 +73,7 @@ class PrinterClient:
         return resp
 
     def get_info(self, key):
-        if packet := self._transceive(64, bytes((key,)), 64+key):
+        if packet := self._transceive(RequestCodeEnum.GET_INFO, bytes((key,)), RequestCodeEnum.GET_INFO + key):
             match key:
                 case InfoEnum.DEVICESERIAL:
                     return packet.data.hex()
@@ -72,7 +87,7 @@ class PrinterClient:
             return None
 
     def get_rfid(self):
-        packet = self._transceive(26, b'\x01', 27)
+        packet = self._transceive(RequestCodeEnum.GET_RFID, b'\x01', RequestCodeEnum.GET_RFID+1)
         data = packet.data
 
         if data[0] == 0:
@@ -101,7 +116,7 @@ class PrinterClient:
         }
 
     def heartbeat(self):
-        packet = self._transceive(220, b'\x01', 221)
+        packet = self._transceive(RequestCodeEnum.HEARTBEAT, b'\x01', RequestCodeEnum.HEARTBEAT+1)
         closingstate = None
         powerlevel = None
         paperstate = None
@@ -137,43 +152,43 @@ class PrinterClient:
 
     def set_label_type(self, n):
         assert 1 <= n <= 3
-        packet = self._transceive(35, bytes((n,)), 51)
+        packet = self._transceive(RequestCodeEnum.SET_LABEL_TYPE, bytes((n,)), RequestCodeEnum.SET_LABEL_TYPE + 16)
         return bool(packet.data[0])
 
     def set_label_density(self, n):
         assert 1 <= n <= 3
-        packet = self._transceive(33, bytes((n,)), 49)
+        packet = self._transceive(RequestCodeEnum.SET_LABEL_DENSITY, bytes((n,)), RequestCodeEnum.SET_LABEL_DENSITY + 16)
         return bool(packet.data[0])
 
     def start_print(self):
-        packet = self._transceive(1, b'\x01', 2)
+        packet = self._transceive(RequestCodeEnum.START_PRINT, b'\x01', RequestCodeEnum.START_PRINT + 1)
         return bool(packet.data[0])
 
     def end_print(self):
-        packet = self._transceive(243, b'\x01', 244)
+        packet = self._transceive(RequestCodeEnum.END_PRINT, b'\x01', RequestCodeEnum.END_PRINT + 1)
         return bool(packet.data[0])
 
     def start_page_print(self):
-        packet = self._transceive(3, b'\x01', 4)
+        packet = self._transceive(RequestCodeEnum.START_PAGE_PRINT, b'\x01', RequestCodeEnum.START_PAGE_PRINT + 1)
         return bool(packet.data[0])
 
     def end_page_print(self):
-        packet = self._transceive(227, b'\x01', 228)
+        packet = self._transceive(RequestCodeEnum.END_PAGE_PRINT, b'\x01', RequestCodeEnum.END_PAGE_PRINT + 1)
         return bool(packet.data[0])
 
     def allow_print_clear(self):
-        packet = self._transceive(32, b'\x01', 48)
+        packet = self._transceive(RequestCodeEnum.ALLOW_PRINT_CLEAR, b'\x01', RequestCodeEnum.ALLOW_PRINT_CLEAR + 16)
         return bool(packet.data[0])
 
     def set_dimension(self, w, h):
-        packet = self._transceive(19, struct.pack('>HH', w, h), 20)
+        packet = self._transceive(RequestCodeEnum.SET_DIMENSION, struct.pack('>HH', w, h), RequestCodeEnum.SET_DIMENSION + 1)
         return bool(packet.data[0])
 
     def set_quantity(self, n):
-        packet = self._transceive(21, struct.pack('>H', n), 22)
+        packet = self._transceive(RequestCodeEnum.SET_QUANTITY, struct.pack('>H', n), RequestCodeEnum.SET_QUANTITY + 1)
         return bool(packet.data[0])
 
     def get_print_status(self):
-        packet = self._transceive(163, b'\x01', 179)
+        packet = self._transceive(RequestCodeEnum.GET_PRINT_STATUS, b'\x01', RequestCodeEnum.GET_PRINT_STATUS + 16)
         page, progress1, progress2 = struct.unpack('>HBB', packet.data)
         return {'page': page, 'progress1': progress1, 'progress2': progress2}
