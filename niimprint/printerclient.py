@@ -56,7 +56,7 @@ class PrinterClient:
         # print('send:',packet)
         self._sock.send(packet.to_bytes())
 
-    def _transceive(self, reqcode, data, respoffset):
+    def _transceive(self, reqcode, data, respoffset=1):
         respcode = respoffset + reqcode
         self._send(niimbotpacket.NiimbotPacket(reqcode, data))
         resp = None
@@ -88,7 +88,7 @@ class PrinterClient:
             return None
 
     def get_rfid(self):
-        packet = self._transceive(RequestCodeEnum.GET_RFID, b'\x01', 1)
+        packet = self._transceive(RequestCodeEnum.GET_RFID, b'\x01')
         data = packet.data
 
         if data[0] == 0:
@@ -117,7 +117,7 @@ class PrinterClient:
         }
 
     def heartbeat(self):
-        packet = self._transceive(RequestCodeEnum.HEARTBEAT, b'\x01', 1)
+        packet = self._transceive(RequestCodeEnum.HEARTBEAT, b'\x01')
         closingstate = None
         powerlevel = None
         paperstate = None
@@ -162,19 +162,19 @@ class PrinterClient:
         return bool(packet.data[0])
 
     def start_print(self):
-        packet = self._transceive(RequestCodeEnum.START_PRINT, b'\x01', 1)
+        packet = self._transceive(RequestCodeEnum.START_PRINT, b'\x01')
         return bool(packet.data[0])
 
     def end_print(self):
-        packet = self._transceive(RequestCodeEnum.END_PRINT, b'\x01', 1)
+        packet = self._transceive(RequestCodeEnum.END_PRINT, b'\x01')
         return bool(packet.data[0])
 
     def start_page_print(self):
-        packet = self._transceive(RequestCodeEnum.START_PAGE_PRINT, b'\x01', 1)
+        packet = self._transceive(RequestCodeEnum.START_PAGE_PRINT, b'\x01')
         return bool(packet.data[0])
 
     def end_page_print(self):
-        packet = self._transceive(RequestCodeEnum.END_PAGE_PRINT, b'\x01', 1)
+        packet = self._transceive(RequestCodeEnum.END_PAGE_PRINT, b'\x01')
         return bool(packet.data[0])
 
     def allow_print_clear(self):
@@ -182,11 +182,11 @@ class PrinterClient:
         return bool(packet.data[0])
 
     def set_dimension(self, w, h):
-        packet = self._transceive(RequestCodeEnum.SET_DIMENSION, struct.pack('>HH', w, h), 1)
+        packet = self._transceive(RequestCodeEnum.SET_DIMENSION, struct.pack('>HH', w, h))
         return bool(packet.data[0])
 
     def set_quantity(self, n):
-        packet = self._transceive(RequestCodeEnum.SET_QUANTITY, struct.pack('>H', n), 1)
+        packet = self._transceive(RequestCodeEnum.SET_QUANTITY, struct.pack('>H', n))
         return bool(packet.data[0])
 
     def get_print_status(self):
