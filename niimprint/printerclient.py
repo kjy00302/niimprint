@@ -56,7 +56,8 @@ class PrinterClient:
         # print('send:',packet)
         self._sock.send(packet.to_bytes())
 
-    def _transceive(self, reqcode, data, respcode):
+    def _transceive(self, reqcode, data, respoffset):
+        respcode = respoffset + reqcode
         self._send(niimbotpacket.NiimbotPacket(reqcode, data))
         resp = None
         for _ in range(6):
@@ -73,7 +74,7 @@ class PrinterClient:
         return resp
 
     def get_info(self, key):
-        if packet := self._transceive(RequestCodeEnum.GET_INFO, bytes((key,)), RequestCodeEnum.GET_INFO + key):
+        if packet := self._transceive(RequestCodeEnum.GET_INFO, bytes((key,)), key):
             match key:
                 case InfoEnum.DEVICESERIAL:
                     return packet.data.hex()
@@ -87,7 +88,7 @@ class PrinterClient:
             return None
 
     def get_rfid(self):
-        packet = self._transceive(RequestCodeEnum.GET_RFID, b'\x01', RequestCodeEnum.GET_RFID+1)
+        packet = self._transceive(RequestCodeEnum.GET_RFID, b'\x01', 1)
         data = packet.data
 
         if data[0] == 0:
@@ -116,7 +117,7 @@ class PrinterClient:
         }
 
     def heartbeat(self):
-        packet = self._transceive(RequestCodeEnum.HEARTBEAT, b'\x01', RequestCodeEnum.HEARTBEAT+1)
+        packet = self._transceive(RequestCodeEnum.HEARTBEAT, b'\x01', 1)
         closingstate = None
         powerlevel = None
         paperstate = None
@@ -152,43 +153,43 @@ class PrinterClient:
 
     def set_label_type(self, n):
         assert 1 <= n <= 3
-        packet = self._transceive(RequestCodeEnum.SET_LABEL_TYPE, bytes((n,)), RequestCodeEnum.SET_LABEL_TYPE + 16)
+        packet = self._transceive(RequestCodeEnum.SET_LABEL_TYPE, bytes((n,)), 16)
         return bool(packet.data[0])
 
     def set_label_density(self, n):
         assert 1 <= n <= 3
-        packet = self._transceive(RequestCodeEnum.SET_LABEL_DENSITY, bytes((n,)), RequestCodeEnum.SET_LABEL_DENSITY + 16)
+        packet = self._transceive(RequestCodeEnum.SET_LABEL_DENSITY, bytes((n,)), 16)
         return bool(packet.data[0])
 
     def start_print(self):
-        packet = self._transceive(RequestCodeEnum.START_PRINT, b'\x01', RequestCodeEnum.START_PRINT + 1)
+        packet = self._transceive(RequestCodeEnum.START_PRINT, b'\x01', 1)
         return bool(packet.data[0])
 
     def end_print(self):
-        packet = self._transceive(RequestCodeEnum.END_PRINT, b'\x01', RequestCodeEnum.END_PRINT + 1)
+        packet = self._transceive(RequestCodeEnum.END_PRINT, b'\x01', 1)
         return bool(packet.data[0])
 
     def start_page_print(self):
-        packet = self._transceive(RequestCodeEnum.START_PAGE_PRINT, b'\x01', RequestCodeEnum.START_PAGE_PRINT + 1)
+        packet = self._transceive(RequestCodeEnum.START_PAGE_PRINT, b'\x01', 1)
         return bool(packet.data[0])
 
     def end_page_print(self):
-        packet = self._transceive(RequestCodeEnum.END_PAGE_PRINT, b'\x01', RequestCodeEnum.END_PAGE_PRINT + 1)
+        packet = self._transceive(RequestCodeEnum.END_PAGE_PRINT, b'\x01', 1)
         return bool(packet.data[0])
 
     def allow_print_clear(self):
-        packet = self._transceive(RequestCodeEnum.ALLOW_PRINT_CLEAR, b'\x01', RequestCodeEnum.ALLOW_PRINT_CLEAR + 16)
+        packet = self._transceive(RequestCodeEnum.ALLOW_PRINT_CLEAR, b'\x01', 16)
         return bool(packet.data[0])
 
     def set_dimension(self, w, h):
-        packet = self._transceive(RequestCodeEnum.SET_DIMENSION, struct.pack('>HH', w, h), RequestCodeEnum.SET_DIMENSION + 1)
+        packet = self._transceive(RequestCodeEnum.SET_DIMENSION, struct.pack('>HH', w, h), 1)
         return bool(packet.data[0])
 
     def set_quantity(self, n):
-        packet = self._transceive(RequestCodeEnum.SET_QUANTITY, struct.pack('>H', n), RequestCodeEnum.SET_QUANTITY + 1)
+        packet = self._transceive(RequestCodeEnum.SET_QUANTITY, struct.pack('>H', n), 1)
         return bool(packet.data[0])
 
     def get_print_status(self):
-        packet = self._transceive(RequestCodeEnum.GET_PRINT_STATUS, b'\x01', RequestCodeEnum.GET_PRINT_STATUS + 16)
+        packet = self._transceive(RequestCodeEnum.GET_PRINT_STATUS, b'\x01', 16)
         page, progress1, progress2 = struct.unpack('>HBB', packet.data)
         return {'page': page, 'progress1': progress1, 'progress2': progress2}
