@@ -1,8 +1,9 @@
 import PIL.Image as Image
 import PIL.ImageOps as ImageOps
 import struct
-import niimbotpacket
 import sys
+
+from .  import niimbotpacket
 
 if sys.version_info.minor >= 10:
     def countbitsofbytes(data):
