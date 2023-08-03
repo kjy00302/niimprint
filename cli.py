@@ -23,6 +23,7 @@ if __name__ == "__main__":
     )
 
     # command parser
+    parser._positionals.title = "commands"
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     parser_info = subparsers.add_parser("info", help="Get printer information")
@@ -32,6 +33,7 @@ if __name__ == "__main__":
     parser_heartbeat = subparsers.add_parser("heartbeat", help="Send heartbeat")
 
     parser_print_label = subparsers.add_parser("print_label", help="Print label")
+
     parser_print_label.add_argument(
         "-q", "--quantity", type=int, default=1, help="Number of copies"
     )
