@@ -1,8 +1,8 @@
-import PIL.Image as Image
 import PIL.ImageOps as ImageOps
 import struct
 import niimbotpacket
 import sys
+import math
 
 if sys.version_info.minor >= 10:
     def countbitsofbytes(data):
@@ -18,12 +18,17 @@ else:
         n = (n & 0x0000FFFF) + ((n & 0xFFFF0000) >> 16)
         return n
 
+
 def naive_encoder(img):
     img_data = ImageOps.invert(img.convert("L")).convert("1").tobytes()
+    line_length = math.ceil(img.width / 8)
+    count_length = line_length // 3
 
     for x in range(img.height):
-        line_data = img_data[x*12:(x+1)*12]
-        counts = ( countbitsofbytes(line_data[i*4:(i+1)*4]) for i in range(3) )
+        line_data = img_data[x*line_length:(x+1)*line_length]
+        counts = (
+            countbitsofbytes(line_data[i*count_length:(i+1)*count_length])
+            for i in range(3))
         header = struct.pack('>H3BB', x, *counts, 1)
         pkt = niimbotpacket.NiimbotPacket(0x85, header+line_data)
         yield pkt
