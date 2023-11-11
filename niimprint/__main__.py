@@ -38,7 +38,6 @@ if __name__ == '__main__':
     for pkt in printencoder.naive_encoder(img):
         printer._send(pkt)
     printer.end_page_print()
-    while (a := printer.get_print_status())['page'] != args.quantity:
-        # print(a)
+
+    while not (b := printer.end_print()):
         time.sleep(0.1)
-    printer.end_print()
