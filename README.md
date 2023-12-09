@@ -1,5 +1,8 @@
 # (WIP) Niimbot printer client
 
+See a better fork here: https://github.com/AndBondStyle/niimprint/tree/main
+
+
 A module + cli-tool to interact with Niimbot printers.
 
 To use this module you need to know the MAC address of the target device.
